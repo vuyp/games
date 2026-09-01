@@ -18,9 +18,12 @@ npm start          # serves the repo at http://localhost:8080 (uses the jsDelivr
 Or build the single-file version, which inlines Three.js and works offline from any static host:
 
 ```bash
-npm run build      # writes dist/arcade.html (~800 KB)
+npm run build      # writes dist/arcade.html (~800 KB) and dist/arcade-embed.html
 npm run preview    # builds, then serves dist/ at http://localhost:8081
 ```
+
+`dist/arcade-embed.html` is the same page without the `<html>/<head>/<body>` wrapper, for hosts that
+inject the page into their own document skeleton.
 
 `index.html` needs to be served over HTTP (ES modules and pointer lock don't work from `file://`).
 `dist/arcade.html` can simply be opened in a browser.

@@ -356,7 +356,8 @@ export class GameManager {
     const pose = this.worldPose(rec.group, rec.standPose);
     const n = WHEEL_SEGMENTS.length;
     let started = false, omega = 0, theta = rec.wheel.rotation.z, lastSeg = -1, done = false, finishT = 0, flapT = 0;
-    const segUnderPointer = () => { const i = Math.round(((Math.PI / 2 - theta) / (Math.PI * 2)) * n - 0.5); return ((i % n) + n) % n; };
+    // Segment under the top pointer for the wheel's current rotation (calibrated against the cap UV mapping).
+    const segUnderPointer = () => { const i = Math.floor((theta / (Math.PI * 2)) * n) + 4; return ((i % n) + n) % n; };
     this.hud.game({ title: 'MEGA SPIN', score: 0, help: 'Spinning… &nbsp;·&nbsp; <kbd>Q</kbd> walk away' });
     this.rig.dock(pose.pos, pose.look, () => { started = true; omega = 9 + Math.random() * 6; rec.bulbs.setMode('chase', 14); this.audio.click(); }, 0.8);
     const session = {
