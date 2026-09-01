@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>D&amp;B Arcade Simulator</title>
+  <meta name="description" content="A first-person Dave & Buster's style arcade simulator built with Three.js. Unofficial fan project." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="vignette"></div>
+
+  <!-- Start / pause overlay -->
+  <div id="overlay">
+    <div class="panel">
+      <div class="logo">
+        <span class="logo-d">D</span><span class="logo-amp">&amp;</span><span class="logo-b">B</span>
+        <span class="logo-sub">ARCADE SIMULATOR</span>
+      </div>
+      <p id="overlay-tagline" class="tagline">EAT · DRINK · PLAY</p>
+      <button id="btn-start" class="big">CLICK TO ENTER</button>
+      <p id="overlay-status" class="status">Building the midway…</p>
+      <div class="controls">
+        <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Walk</div>
+        <div><kbd>Shift</kbd> Run</div>
+        <div><kbd>Mouse</kbd> Look</div>
+        <div><kbd>E</kbd> Interact / Play</div>
+        <div><kbd>Q</kbd> Leave a game</div>
+        <div><kbd>M</kbd> Music &nbsp; <kbd>F</kbd> Flashlight</div>
+      </div>
+      <div class="settings">
+        <label>Quality
+          <select id="sel-quality">
+            <option value="high">High (bloom, shadows, reflections)</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="chk-audio" checked /> Sound</label>
+        <button id="btn-reset" class="small" title="Clear saved Power Card">Reset card</button>
+      </div>
+      <p class="fineprint">Unofficial fan-made simulation. Not affiliated with or endorsed by Dave &amp; Buster's. Desktop with a mouse recommended.</p>
+    </div>
+  </div>
+
+  <!-- In-world HUD -->
+  <div id="hud" hidden>
+    <div id="crosshair"><span></span></div>
+    <div id="prompt" hidden><kbd>E</kbd><span id="prompt-text"></span></div>
+    <div id="hint"></div>
+    <div id="card">
+      <div class="card-top"><span class="card-brand">POWER CARD</span><span id="card-name">GUEST</span></div>
+      <div class="card-row"><span class="label">CHIPS</span><span id="card-chips" class="value">0</span></div>
+      <div class="card-row"><span class="label">TICKETS</span><span id="card-tickets" class="value tickets">0</span></div>
+      <div class="card-row small"><span class="label">PRIZES</span><span id="card-prizes" class="value">0</span></div>
+    </div>
+    <div id="gamehud" hidden>
+      <div id="gh-title"></div>
+      <div class="gh-stats">
+        <div><span class="label">SCORE</span><span id="gh-score">0</span></div>
+        <div id="gh-extra-wrap"><span id="gh-extra-label" class="label">BALLS</span><span id="gh-extra">0</span></div>
+        <div id="gh-time-wrap"><span class="label">TIME</span><span id="gh-time">0</span></div>
+      </div>
+      <div id="gh-help"></div>
+    </div>
+    <div id="toasts"></div>
+    <div id="fps" hidden></div>
+  </div>
+
+  <!-- Modal (prize counter, kiosk) -->
+  <div id="modal" hidden>
+    <div class="modal-box">
+      <div class="modal-head"><h2 id="modal-title"></h2><button id="modal-close" class="small">Close (Q)</button></div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

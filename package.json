@@ -1,0 +1,18 @@
+{
+  "name": "db-arcade-simulator",
+  "version": "1.0.0",
+  "description": "A realistic first-person Dave & Buster's style arcade simulator built with Three.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "npx --yes http-server -p 8080 -c-1 -o .",
+    "build": "node scripts/build.mjs",
+    "preview": "npm run build && npx --yes http-server dist -p 8081 -c-1 -o arcade.html"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}
