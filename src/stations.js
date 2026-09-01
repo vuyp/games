@@ -129,6 +129,23 @@ export class GameManager {
     const tiltN = new THREE.Vector3(0, Math.sin(-target.tilt), Math.cos(-target.tilt)); // local normal of the target face (up/forward)
     const tiltU = new THREE.Vector3(0, Math.cos(-target.tilt), -Math.sin(-target.tilt)); // local "up" along the face
     const holes = [[0.07, 50], [0.117, 40], [0.182, 30], [0.254, 20], [0.332, 10]];
+    // Where on the target face a ball leaving the ramp at speed v lands (face coordinate v: -0.5 bottom .. 0.5 top).
+    const landingV = (vr) => {
+      let y = lane.y, z = lane.rampZ, vy = vr * Math.sin(0.9), vz = -vr * Math.cos(0.9);
+      for (let i = 0; i < 400; i++) {
+        vy -= 9.8 / 120; y += vy / 120; z += vz / 120;
+        const rel = new THREE.Vector3(0, y - target.y, z - target.z);
+        if (rel.dot(tiltN) < 0.045) return rel.dot(tiltU);
+        if (y < 0) return -9;
+      }
+      return 9;
+    };
+    // Ramp speed that lands at face coordinate `want` (bisection), so power maps linearly to height on the board.
+    const speedForFace = (want) => {
+      let lo = 2.0, hi = 9.0;
+      for (let i = 0; i < 24; i++) { const mid = (lo + hi) / 2; if (landingV(mid) < want) lo = mid; else hi = mid; }
+      return (lo + hi) / 2;
+    };
     this.hud.game({ title: 'SKEE-BALL', score: 0, extraLabel: 'BALLS', extra: 9, help: 'Hold <kbd>Mouse</kbd> to charge, move mouse to aim, release to roll &nbsp;·&nbsp; <kbd>Q</kbd> walk away' });
     drawScoreboard(rec.scoreEntry, { score: 0, label: 'SKEE-BALL' });
     this.rig.dock(pose.pos, pose.look, () => { started = true; this.hud.hint('Hold the mouse button to charge your roll, release to throw'); }, 0.9);
@@ -188,7 +205,11 @@ export class GameManager {
         ballsLeft--; this.hud.gameUpdate({ extra: ballsLeft });
         const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 12), M.skeeBall);
         mesh.castShadow = true; g.add(mesh);
-        ballInFlight = { mesh, phase: 'lane', t: 0, x: aim * 0.12, y: lane.y, z: lane.startZ, v: 3.5 + power * 3.7, vx: aim * 0.35, vy: 0, vz: 0 };
+        // power 0 → below the board, ~0.4 → bullseye, ~0.9 → the 100 pockets, 1 → over the top
+        const wantV = -0.5 + power * 0.98 + (Math.random() - 0.5) * 0.04;
+        const vr = speedForFace(wantV);
+        const v0 = Math.sqrt(vr * vr + 2 * 0.6 * (lane.startZ - lane.rampZ));
+        ballInFlight = { mesh, phase: 'lane', t: 0, x: aim * 0.12, y: lane.y, z: lane.startZ, v: v0, vx: aim * 0.35, vy: 0, vz: 0 };
         this.audio.roll(); updateRack();
       },
       end: () => { this.scene.remove(held); if (ballInFlight?.mesh) g.remove(ballInFlight.mesh); rec.balls.forEach(b => b.visible = true); drawScoreboard(rec.scoreEntry, null); },
