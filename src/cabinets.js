@@ -73,7 +73,7 @@ export class CabinetFactory {
   }
   _marquee(game, id) {
     if (!this.marqueeMats[id]) {
-      const m = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: marqueeTexture(game.title, game.seed), emissiveIntensity: 1.15, roughness: 0.5 });
+      const m = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: marqueeTexture(game.title, game.seed), emissiveIntensity: 0.95, roughness: 0.5 });
       m.userData.noShadow = true;
       this.marqueeMats[id] = m;
     }

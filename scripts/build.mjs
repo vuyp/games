@@ -31,3 +31,11 @@ html = html
 mkdirSync(resolve(root, 'dist'), { recursive: true });
 writeFileSync(resolve(root, 'dist/arcade.html'), html);
 console.log(`dist/arcade.html written (${(html.length / 1024).toFixed(0)} KB)`);
+
+// Body-only variant for hosts that wrap the page in their own <html>/<head>/<body> skeleton.
+const head = html.match(/<head>([\s\S]*?)<\/head>/)[1]
+  .split('\n').filter(l => /<title>|<link|<style|<\/style|^\s*$/.test(l) || !/<meta/.test(l)).join('\n')
+  .replace(/<meta[^>]*>\s*/g, '');
+const body = html.match(/<body>([\s\S]*?)<\/body>/)[1];
+writeFileSync(resolve(root, 'dist/arcade-embed.html'), `${head}\n${body}`);
+console.log('dist/arcade-embed.html written');

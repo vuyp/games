@@ -60,6 +60,7 @@ const layout = buildLayout(scene, batcher, screens);
 hud.setStatus('Merging geometry…');
 await new Promise(r => setTimeout(r, 30));
 const staticMeshes = batcher.finalize();
+if (layout.mid.extraLights) venue.lights.push(...layout.mid.extraLights);
 
 // reflective lobby floor (high quality)
 let reflector = null;
@@ -229,6 +230,11 @@ window.ARCADE = {
   ready: true, scene, camera, controller, games, renderer, screens, layout, venue,
   debugStart(x, y, z, yaw, pitch) { hud.hideOverlay(); playing = true; controller.setPose(x, y, z, yaw, pitch); controller.update(0); },
   renderOnce() { controller.update(0); composer.render(); },
+  // Advance game logic without rendering (used by the headless playtest).
+  simulate(seconds, step = 1 / 30) {
+    let t = clock.elapsedTime;
+    for (let s = 0; s < seconds; s += step) { t += step; controller.update(step); rig.update(step); games.update(step, t); for (let i = 0; i < updatables.length; i++) if (!updatables[i].skipInSim) updatables[i].update(step, t); }
+  },
   stats() { return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, staticMeshes: staticMeshes.length, lights: venue.lights.length, updatables: updatables.length }; },
 };
 

@@ -36,10 +36,10 @@ export function buildLayout(scene, batcher, screens) {
   for (let i = 0; i < 4; i++) cab.place(i % 2 ? 'dragon' : 'cosmic', -4.6, -24.5 - i * 0.9, Math.PI / 2);
   // skee-ball lanes along the left wall (players face the wall)
   mid.bankHeader(-23.5, -9.4, Math.PI / 2, 'SKEE-BALL', '#26e5ff', 6.5);
-  for (let i = 0; i < 6; i++) mid.skeeball(-25.2, -7.0 - i * 1.15, -Math.PI / 2);
+  for (let i = 0; i < 6; i++) mid.skeeball(-25.2, -7.0 - i * 1.15, Math.PI / 2);
   // hoops along the left wall further back
   mid.bankHeader(-23.8, -19.6, Math.PI / 2, 'HOOP FEVER', '#ff5a3a', 8);
-  for (let i = 0; i < 6; i++) mid.hoops(-26.2, -16.6 - i * 1.25, -Math.PI / 2);
+  for (let i = 0; i < 6; i++) mid.hoops(-26.2, -16.6 - i * 1.25, Math.PI / 2);
   // air hockey and pushers at the back-left
   mid.airHockey(-22, -28, 0); mid.airHockey(-22, -31.2, 0); mid.airHockey(-22, -34.4, 0);
   mid.pusher(-14, -27, Math.PI / 2, 0); mid.pusher(-14, -28.3, Math.PI / 2, 1);

@@ -5,6 +5,7 @@ import { M, emissive, glowMat } from './materials.js';
 import { neonText, boxSign, BulbChaser, rectBulbs, circleBulbs, lineBulbs } from './neon.js';
 import { addCollider, interactionVolume, updatables } from './world.js';
 import { wheelFaceTexture, labelTexture, prizeBoxTexture, radialGlowTexture, marqueeTexture } from './textures.js';
+import { ATTRACT } from './screens.js';
 
 export const WHEEL_SEGMENTS = [
   { label: '25', value: 25, color: '#d8202a' }, { label: '50', value: 50, color: '#1946d8' }, { label: '10', value: 10, color: '#ffc31c' }, { label: '100', value: 100, color: '#1fc24a' },
@@ -37,7 +38,7 @@ export class MidwayFactory {
   marquee(title, seed) {
     const key = title + seed;
     if (!this.marquees[key]) {
-      this.marquees[key] = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: marqueeTexture(title, seed), emissiveIntensity: 1.15, roughness: 0.5 });
+      this.marquees[key] = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: marqueeTexture(title, seed), emissiveIntensity: 0.95, roughness: 0.5 });
       this.marquees[key].userData.noShadow = true;
     }
     return this.marquees[key];
@@ -118,7 +119,9 @@ export class MidwayFactory {
     const sb = this.screen(g, 'scoreboard', 0.5, 0.36, [0, 2.6, -2.16], [0, 0, 0], 160, 120, 0, true);
     rec.scoreEntry = sb.entry;
     rec.scoreEntry.state = { rnd: Math.random, hi: 320 };
-    rec.scoreEntry.draw = null;
+    ATTRACT.scoreboard(sb.entry.ctx, sb.entry.w, sb.entry.h, 0, sb.entry.state, 0); sb.entry.texture.needsUpdate = true;
+    // lane lighting under the header
+    b.plane(0.9, 0.08, glowMat(0xfff1d6, 2.2), [0, 2.32, -2.1], [Math.PI / 2, 0, 0], g);
     // ball return trough & balls
     b.box(0.12, 0.08, 2.6, M.steelDark, [0.52, 0.42, 0.5], [0, 0, 0], g);
     rec.balls = [];
@@ -178,6 +181,8 @@ export class MidwayFactory {
     new BulbChaser(rectBulbs(1.1, 0.55, 0.11, -1.36, 0, 3.35), { color: 0xffd28a, mode: 'chase', speed: 8, parent: g, radius: 0.022 });
     const sb = this.screen(g, 'scoreboard', 0.5, 0.36, [0, 2.85, -1.4], [0, 0, 0], 160, 120, 0, true);
     rec.scoreEntry = sb.entry; rec.scoreEntry.state = { rnd: Math.random, hi: 48 };
+    ATTRACT.scoreboard(sb.entry.ctx, sb.entry.w, sb.entry.h, 0, sb.entry.state, 0); sb.entry.texture.needsUpdate = true;
+    b.plane(1.0, 0.08, glowMat(0xfff1d6, 2.2), [0, 3.05, -1.3], [Math.PI / 2, 0, 0], g);
     // rack balls
     rec.balls = [];
     for (let i = 0; i < 3; i++) {
@@ -474,15 +479,21 @@ export class MidwayFactory {
       }
     });
     // TVs above the back bar
-    for (let i = 0; i < 4; i++) {
-      const pz = -7 + i * 3.4;
-      b.box(1.5, 0.9, 0.06, M.blackPlastic, [wallX - 0.36, 4.4, pz], [0, 0, 0], g);
-      this.screen(g, 'tv', 1.4, 0.8, [wallX - 0.395, 4.4, pz], [0, -Math.PI / 2, 0], 480, 270, i % 2);
+    for (let i = 0; i < 3; i++) {
+      const pz = -7 + i * 3.0;
+      b.box(0.06, 1.3, 2.3, M.blackPlastic, [wallX - 0.36, 4.3, pz], [0, 0, 0], g);
+      this.screen(g, 'tv', 2.2, 1.24, [wallX - 0.395, 4.3, pz], [0, -Math.PI / 2, 0], 480, 270, i % 2);
     }
-    const barNeon = neonText('BAR', { color: '#ff3cac', height: 0.9, intensity: 2.6, backing: false });
-    barNeon.position.set(wallX - 0.12, 3.8, 2.8); barNeon.rotation.y = -Math.PI / 2; g.add(barNeon);
-    const cold = neonText('ICE COLD BEER', { color: '#26e5ff', height: 0.32, intensity: 2.2, backing: false, letterSpacing: 8 });
-    cold.position.set(wallX - 0.12, 3.15, 2.8); cold.rotation.y = -Math.PI / 2; g.add(cold);
+    const barNeon = neonText('BAR', { color: '#ff3cac', height: 1.4, intensity: 2.6, backing: false });
+    barNeon.position.set(wallX - 0.12, 4.3, 3.2); barNeon.rotation.y = -Math.PI / 2; g.add(barNeon);
+    const cold = neonText('ICE COLD BEER', { color: '#26e5ff', height: 0.42, intensity: 2.2, backing: false, letterSpacing: 8 });
+    cold.position.set(wallX - 0.12, 3.3, 3.2); cold.rotation.y = -Math.PI / 2; g.add(cold);
+    // warm bar lighting
+    for (let i = 0; i < 4; i++) {
+      const pl = new THREE.PointLight(0xffb070, i === 1 ? 45 : 30, 12, 2); pl.position.set(wallX - 3.2, 2.7, -7 + i * 3.2); pl.userData.tier = i === 1 ? 1 : 2; g.add(pl); (this.extraLights ||= []).push(pl);
+    }
+    const bl = new THREE.PointLight(0xff9ad0, 20, 10, 2); bl.position.set(wallX - 1.5, 3.6, 3.2); bl.userData.tier = 2; g.add(bl); (this.extraLights ||= []).push(bl);
+    const tl = new THREE.PointLight(0xffd0a0, 28, 12, 2); tl.position.set(18, 3.0, -2.5); tl.userData.tier = 2; g.add(tl); (this.extraLights ||= []).push(tl);
     // counter
     const cxBar = wallX - 3.2;
     b.box(0.7, 1.1, 12, M.cabinetPurple, [cxBar, 0.55, -2], [0, 0, 0], g);
@@ -559,5 +570,7 @@ export class MidwayFactory {
     n.position.set(0, 2.9, 0.17); g.add(n);
     const n2 = n.clone(); n2.rotation.y = Math.PI; n2.position.z = -0.17; g.add(n2);
     new BulbChaser(lineBulbs([-width / 2, 3.32, 0.16], [width / 2, 3.32, 0.16], Math.round(width / 0.2)), { color: 0xffd28a, mode: 'chase', speed: 8, parent: g, radius: 0.025 });
+    const pl = new THREE.PointLight(new THREE.Color(color), 30, 16, 2); pl.position.set(0, 2.4, 0); pl.userData.tier = 2; g.add(pl);
+    (this.extraLights ||= []).push(pl);
   }
 }

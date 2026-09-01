@@ -417,7 +417,9 @@ export function marqueeTexture(title, seed = 0, subtitle = '') {
     const x = rnd() * w, y = rnd() * h, s = 1 + rnd() * 3;
     ctx.fillRect(x, y, s, s);
   }
-  ctx.font = `${title.length > 12 ? 52 : 64}px "Bungee", Impact, "Arial Black", sans-serif`;
+  let fs = 64;
+  ctx.font = `${fs}px "Bungee", Impact, "Arial Black", sans-serif`;
+  while (fs > 26 && ctx.measureText(title).width > w - 60) { fs -= 4; ctx.font = `${fs}px "Bungee", Impact, "Arial Black", sans-serif`; }
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
   ctx.lineWidth = 12; ctx.strokeStyle = '#120018';

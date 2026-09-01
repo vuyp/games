@@ -388,6 +388,7 @@ export class ScreenManager {
     this.perFrame = 4;
     this.cursor = 0;
     this.fps = 15;
+    this.skipInSim = true;
     updatables.push(this);
   }
   // Shared screen for a given attract kind & variant. Returns { texture, material, canvas }.

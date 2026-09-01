@@ -63,7 +63,7 @@ export function buildBuilding(scene, b, screens, quality) {
     b.box(0.3, 0.12, 0.05, glowMat(0xff3020, 1.5), [x + 0.7, 0.7 - 0.12, z - 2.21], [0, 0, 0]);
   });
   // keep the player near the building
-  addCollider(0, 17.5, 80, 1);
+  addCollider(0, 19.2, 80, 1);
   addCollider(-32, 12, 1, 12);
   addCollider(32, 12, 1, 12);
 
@@ -79,14 +79,14 @@ export function buildBuilding(scene, b, screens, quality) {
   b.box(0.9, 4.3, 0.9, M.brick, [-7.55, 2.15, H.maxZ + wallT + 0.45], [0, 0, 0], null, 1.2);
   b.box(0.9, 4.3, 0.9, M.brick, [7.55, 2.15, H.maxZ + wallT + 0.45], [0, 0, 0], null, 1.2);
   // main sign: illuminated channel letters on a dark raceway
-  b.box(15, 1.7, 0.25, M.blackPlastic, [0, 6.2, H.maxZ + wallT + 0.6], [0, 0, 0]);
+  b.box(15, 1.7, 0.25, M.blackPlastic, [0, 6.5, H.maxZ + wallT + 0.6], [0, 0, 0]);
   const mainSign = neonText("DAVE & BUSTER'S", { color: '#ffb02e', height: 1.25, intensity: 2.6, backing: false, letterSpacing: 4 });
-  mainSign.position.set(0, 6.2, H.maxZ + wallT + 0.75);
+  mainSign.position.set(0, 6.5, H.maxZ + wallT + 0.75);
   scene.add(mainSign);
   const sub = neonText('ARCADE  •  SPORTS BAR  •  RESTAURANT', { color: '#26e5ff', height: 0.42, intensity: 2.2, backing: false, letterSpacing: 8 });
-  sub.position.set(0, 4.85, H.maxZ + wallT + 0.75);
+  sub.position.set(0, 5.15, H.maxZ + wallT + 0.75);
   scene.add(sub);
-  const signLight = new THREE.PointLight(0xffb060, 60, 22, 2); signLight.position.set(0, 6.3, H.maxZ + 3); signLight.userData.tier = 1; lights.push(signLight); scene.add(signLight);
+  const signLight = new THREE.PointLight(0xffb060, 60, 22, 2); signLight.position.set(0, 6.6, H.maxZ + 3); signLight.userData.tier = 1; lights.push(signLight); scene.add(signLight);
   for (const x of [-9, 9]) {
     const up = new THREE.SpotLight(0xffc890, 80, 14, 0.5, 0.7, 1.6);
     up.position.set(x, 0.3, H.maxZ + wallT + 1.4); up.target.position.set(x * 0.8, 7, H.maxZ + wallT + 0.5);
@@ -95,23 +95,23 @@ export function buildBuilding(scene, b, screens, quality) {
   }
   const moon = new THREE.DirectionalLight(0x9fb4ff, 0.35); moon.position.set(30, 60, 80); moon.target.position.set(0, 0, 20); moon.userData.tier = 1; scene.add(moon); scene.add(moon.target); lights.push(moon);
   // canopy over the sidewalk
-  b.box(15, 0.4, 5.2, M.blackPlastic, [0, 3.9, H.maxZ + wallT + 2.8], [0, 0, 0]);
-  b.box(15.2, 0.55, 0.3, M.steelDark, [0, 3.9, H.maxZ + wallT + 5.45], [0, 0, 0]);
+  b.box(15, 0.4, 3.4, M.blackPlastic, [0, 3.9, H.maxZ + wallT + 1.9], [0, 0, 0]);
+  b.box(15.2, 0.55, 0.3, M.steelDark, [0, 3.9, H.maxZ + wallT + 3.65], [0, 0, 0]);
   const fascia = neonText('EAT  ·  DRINK  ·  PLAY  ·  WATCH', { color: '#ff3cac', height: 0.34, intensity: 2.2, backing: false, letterSpacing: 10 });
-  fascia.position.set(0, 3.9, H.maxZ + wallT + 5.62);
+  fascia.position.set(0, 3.9, H.maxZ + wallT + 3.82);
   scene.add(fascia);
   for (const x of [-4.5, 0, 4.5]) {
-    b.cyl(0.12, 0.12, 0.05, M.steelDark, [x, 3.68, H.maxZ + wallT + 2.8], [0, 0, 0], null, 12);
-    b.cyl(0.09, 0.09, 0.02, glowMat(0xfff1d6, 3), [x, 3.66, H.maxZ + wallT + 2.8], [0, 0, 0], null, 12);
+    b.cyl(0.12, 0.12, 0.05, M.steelDark, [x, 3.68, H.maxZ + wallT + 1.9], [0, 0, 0], null, 12);
+    b.cyl(0.09, 0.09, 0.02, glowMat(0xfff1d6, 3), [x, 3.66, H.maxZ + wallT + 1.9], [0, 0, 0], null, 12);
     const sp = new THREE.SpotLight(0xfff0d8, 45, 12, 0.7, 0.6, 2);
-    sp.position.set(x, 3.66, H.maxZ + wallT + 2.8);
-    sp.target.position.set(x, 0, H.maxZ + wallT + 2.9);
+    sp.position.set(x, 3.66, H.maxZ + wallT + 1.9);
+    sp.target.position.set(x, 0, H.maxZ + wallT + 2.0);
     sp.userData.tier = x === 0 ? 1 : 2;
     sp.userData.shadow = x === 0;
     scene.add(sp); scene.add(sp.target); lights.push(sp);
   }
   // canopy supports
-  for (const x of [-7.2, 7.2]) b.cyl(0.08, 0.08, 3.9, M.steelDark, [x, 1.95, H.maxZ + wallT + 5.2], [0, 0, 0], null, 10);
+  for (const x of [-7.2, 7.2]) b.cyl(0.08, 0.08, 3.9, M.steelDark, [x, 1.95, H.maxZ + wallT + 3.4], [0, 0, 0], null, 10);
   // planters, bollards, bench, trash can, mats
   for (const x of [-4.2, 4.2]) {
     b.box(1.2, 0.6, 0.8, M.concrete, [x, 0.3, H.maxZ + 1.2], [0, 0, 0], null, 1);
@@ -246,7 +246,7 @@ export function buildBuilding(scene, b, screens, quality) {
   for (const x of [-16, 16]) for (const z of [-10, -26]) { fixture(x, z); spot(x, z, { tier: 3, intensity: 40, angle: 0.8 }); }
   // colored accent floods on the walls
   for (const x of [-27.6, 27.6]) for (let z = -38; z < 6; z += 8) {
-    b.plane(0.12, 4.6, glowMat(x < 0 ? 0xff3cac : 0x26e5ff, 1.8), [x + (x < 0 ? 0.42 : -0.42), 2.6, z], [0, x < 0 ? Math.PI / 2 : -Math.PI / 2, 0]);
+    b.plane(0.12, 4.6, glowMat(x < 0 ? 0xff3cac : 0x26e5ff, 1.8), [x + (x < 0 ? -0.37 : 0.37), 2.6, z], [0, x < 0 ? Math.PI / 2 : -Math.PI / 2, 0]);
   }
   // neon accent point lights
   const accent = (x, y, z, color, intensity = 18, dist = 12, tier = 2) => { const p = new THREE.PointLight(color, intensity, dist, 2); p.position.set(x, y, z); p.userData.tier = tier; scene.add(p); lights.push(p); return p; };
@@ -308,6 +308,6 @@ export function buildBuilding(scene, b, screens, quality) {
   scene.add(hangSign(boxSign(['RACING · VR →'], { w: 2.0, h: 0.5, bg: '#301010', fg: '#ffffff', font: '48px "Bungee", Impact, sans-serif' }), 3.5, 3.9, -9, 0, ceilH));
 
   // ---------- reflective lobby floor (high quality) ----------
-  const spawn = { pos: new THREE.Vector3(0, 1.7, 16.4), yaw: 0, pitch: 0.1 };
+  const spawn = { pos: new THREE.Vector3(0, 1.7, 17.6), yaw: 0, pitch: 0.14 };
   return { lights, spawn, doors };
 }
