@@ -37,7 +37,7 @@ export class GameManager {
   // Called when E is pressed on an interactable.
   interact(mesh) {
     const it = mesh.userData.interact;
-    if (!it || this.busy()) return;
+    if (!it || this.busy() || this.rig.active || performance.now() < (this.cooldownUntil || 0)) return;
     if (it.kind === 'cabinet') this.startCabinet(it.cabinet);
     else if (it.kind === 'station') {
       const s = it.station;
@@ -72,6 +72,7 @@ export class GameManager {
     this.controller.lookOnly = false;
     if (s.docked) this.rig.release(); else this.controller.enabled = true;
     this.mode = 'walk';
+    this.cooldownUntil = performance.now() + 700;
   }
   update(dt, t) {
     if (this.session?.update) this.session.update(dt, t);
@@ -127,7 +128,7 @@ export class GameManager {
     const target = lane.target;
     const tiltN = new THREE.Vector3(0, Math.sin(-target.tilt), Math.cos(-target.tilt)); // local normal of the target face (up/forward)
     const tiltU = new THREE.Vector3(0, Math.cos(-target.tilt), -Math.sin(-target.tilt)); // local "up" along the face
-    const holes = [[0.05, 50], [0.107, 40], [0.172, 30], [0.244, 20], [0.322, 10]];
+    const holes = [[0.07, 50], [0.117, 40], [0.182, 30], [0.254, 20], [0.332, 10]];
     this.hud.game({ title: 'SKEE-BALL', score: 0, extraLabel: 'BALLS', extra: 9, help: 'Hold <kbd>Mouse</kbd> to charge, move mouse to aim, release to roll &nbsp;·&nbsp; <kbd>Q</kbd> walk away' });
     drawScoreboard(rec.scoreEntry, { score: 0, label: 'SKEE-BALL' });
     this.rig.dock(pose.pos, pose.look, () => { started = true; this.hud.hint('Hold the mouse button to charge your roll, release to throw'); }, 0.9);
@@ -150,10 +151,10 @@ export class GameManager {
           const b = ballInFlight;
           b.t += dt;
           if (b.phase === 'lane') {
-            b.v = Math.max(1.2, b.v - 1.1 * dt);
+            b.v = Math.max(1.2, b.v - 0.6 * dt);
             b.z -= b.v * dt; b.x += b.vx * dt;
             b.x = Math.max(-0.36, Math.min(0.36, b.x));
-            if (b.z <= lane.rampZ) { b.phase = 'air'; b.vy = b.v * Math.sin(0.62) * 0.95; b.vz = -b.v * Math.cos(0.62) * 0.95; b.y = lane.y; this.audio.swish(); }
+            if (b.z <= lane.rampZ) { b.phase = 'air'; b.vy = b.v * Math.sin(0.9); b.vz = -b.v * Math.cos(0.9); b.y = lane.y; this.audio.swish(); }
           } else if (b.phase === 'air') {
             b.vy -= 9.8 * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.x += b.vx * dt;
             // hit the target face?
@@ -187,7 +188,7 @@ export class GameManager {
         ballsLeft--; this.hud.gameUpdate({ extra: ballsLeft });
         const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 12), M.skeeBall);
         mesh.castShadow = true; g.add(mesh);
-        ballInFlight = { mesh, phase: 'lane', t: 0, x: aim * 0.12, y: lane.y, z: lane.startZ, v: 2.2 + power * 3.3, vx: aim * 0.35, vy: 0, vz: 0 };
+        ballInFlight = { mesh, phase: 'lane', t: 0, x: aim * 0.12, y: lane.y, z: lane.startZ, v: 3.5 + power * 3.7, vx: aim * 0.35, vy: 0, vz: 0 };
         this.audio.roll(); updateRack();
       },
       end: () => { this.scene.remove(held); if (ballInFlight?.mesh) g.remove(ballInFlight.mesh); rec.balls.forEach(b => b.visible = true); drawScoreboard(rec.scoreEntry, null); },
@@ -221,7 +222,11 @@ export class GameManager {
       this.controller.enabled = true; this.controller.lookOnly = true;
       this.hud.hint('Look at the hoop, hold the mouse button to charge, release to shoot');
     }, 0.9);
-    const launchVel = (p) => { const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion); return dir.multiplyScalar(3.2 + p * 5.2).add(new THREE.Vector3(0, 1.2 + p * 1.2, 0)); };
+    const launchVel = (p) => {
+      const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
+      const h = new THREE.Vector3(dir.x, 0, dir.z).normalize();
+      return h.multiplyScalar(2.2 + p * 2.6).add(new THREE.Vector3(0, 3.4 + p * 2.6 + dir.y * 2.0, 0));
+    };
     const startPos = () => new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion).multiplyScalar(0.4).add(this.camera.position).add(new THREE.Vector3(0, -0.1, 0));
     const m4 = new THREE.Matrix4();
     const session = {

@@ -434,10 +434,12 @@ export class Pinball extends Base {
     this.title = variant ? 'DRAGON FIRE' : 'COSMIC PINBALL';
     this.help = '<kbd>←</kbd><kbd>→</kbd> flippers &nbsp; hold <kbd>Space</kbd> plunger';
     this.variant = variant; this.balls = 3; this.pal = variant ? ['#0a0a3a', '#ff6a00', '#ffd400'] : ['#1a0030', '#ff2d95', '#22e5ff'];
-    this.bumpers = [{ x: w * 0.35, y: h * 0.28, r: 14, f: 0 }, { x: w * 0.65, y: h * 0.28, r: 14, f: 0 }, { x: w * 0.5, y: h * 0.42, r: 14, f: 0 }, { x: w * 0.25, y: h * 0.5, r: 10, f: 0 }, { x: w * 0.75, y: h * 0.5, r: 10, f: 0 }];
+    this.bumpers = [{ x: w * 0.35, y: h * 0.28, r: 14, f: 0 }, { x: w * 0.65, y: h * 0.28, r: 14, f: 0 }, { x: w * 0.5, y: h * 0.42, r: 14, f: 0 }, { x: w * 0.25, y: h * 0.5, r: 10, f: 0 }, { x: w * 0.75, y: h * 0.5, r: 10, f: 0 },
+      { x: w * 0.18, y: h * 0.3, r: 7, f: 0, target: true }, { x: w * 0.5, y: h * 0.14, r: 7, f: 0, target: true }, { x: w * 0.82, y: h * 0.36, r: 7, f: 0, target: true }];
+    this.rollover = false;
     this.flipL = 0; this.flipR = 0; this.plunge = 0; this.newBall();
   }
-  newBall() { this.ball = { x: this.w - 18, y: this.h - 60, vx: 0, vy: 0, inLane: true }; this.ballsUsed = (this.ballsUsed || 0); }
+  newBall() { this.ball = { x: this.w - 18, y: this.h - 60, vx: 0, vy: 0, inLane: true }; this.rollover = false; }
   update(dt) {
     const { ctx, w, h } = this; this.t += dt;
     const b = this.ball, G = 380;
@@ -456,12 +458,12 @@ export class Pinball extends Base {
         if (b.x > rightW && !(b.y > h * 0.8 && b.x > w - 30)) { b.x = rightW; b.vx = -Math.abs(b.vx) * 0.7; }
         if (b.x > w - 30 && b.y > h * 0.2 && b.vy > 0 && b.x < w - 12) { /* falling back into lane */ }
         if (b.y < 14) { b.y = 14; b.vy = Math.abs(b.vy) * 0.6; }
-        // top arch: nudge to the left off the lane
-        if (b.y < h * 0.12 && b.x > w - 40) b.vx -= 200 * dt;
+        // top arch: throw the ball around into the playfield
+        if (b.y < h * 0.12 && b.x > w - 40) { b.vx -= 900 * dt; if (!this.rollover) { this.rollover = true; this.score += 250; this.io.audio.pop(); } }
         // bumpers
         for (const bp of this.bumpers) {
           const dx = b.x - bp.x, dy = b.y - bp.y, d = Math.hypot(dx, dy);
-          if (d < bp.r + 5) { const nx = dx / d, ny = dy / d; b.x = bp.x + nx * (bp.r + 5); const dot = b.vx * nx + b.vy * ny; b.vx = (b.vx - 2 * dot * nx) * 0.9 + nx * 160; b.vy = (b.vy - 2 * dot * ny) * 0.9 + ny * 160; this.score += 100; bp.f = 0.15; this.io.audio.tone(900 + Math.random() * 300, { type: 'square', dur: 0.06, vol: 0.1 }); }
+          if (d < bp.r + 5) { const nx = dx / d, ny = dy / d; b.x = bp.x + nx * (bp.r + 5); const dot = b.vx * nx + b.vy * ny; const kick = bp.target ? 40 : 160; b.vx = (b.vx - 2 * dot * nx) * 0.9 + nx * kick; b.vy = (b.vy - 2 * dot * ny) * 0.9 + ny * kick; this.score += bp.target ? 500 : 100; bp.f = 0.15; this.io.audio.tone(bp.target ? 1400 : 900 + Math.random() * 300, { type: 'square', dur: 0.06, vol: 0.1 }); }
           bp.f -= dt;
         }
         // slanted lower guides
@@ -481,7 +483,7 @@ export class Pinball extends Base {
         // drain
         if (b.y > h + 10) { this.balls--; this.io.audio.lose(); if (this.balls <= 0) this.finish('GAME OVER', `SCORE ${this.score}`); else this.newBall(); }
         // lane re-entry
-        if (b.x > w - 30 && b.y > h * 0.5 && b.vy > 0) { b.inLane = true; b.x = w - 18; b.vx = 0; b.vy = 0; b.y = Math.min(b.y, h - 60); }
+        if (b.x > w - 30 && b.y > h * 0.5 && b.vy > 0) { b.inLane = true; b.x = w - 18; b.vx = 0; b.vy = 0; b.y = Math.min(b.y, h - 60); this.rollover = false; }
         if (b.inLane && b.vy !== 0) { b.y += b.vy * dt; if (b.y > h - 60) { b.y = h - 60; b.vy = 0; } }
       }
     }
@@ -490,7 +492,7 @@ export class Pinball extends Base {
     ctx.fillStyle = this.pal[0]; ctx.fillRect(0, 0, w, h);
     ctx.strokeStyle = this.pal[2]; ctx.lineWidth = 3; ctx.strokeRect(6, 6, w - 12, h);
     ctx.beginPath(); ctx.moveTo(w - 30, h * 0.2); ctx.lineTo(w - 30, h); ctx.stroke();
-    for (const bp of this.bumpers) { ctx.fillStyle = bp.f > 0 ? '#fff' : this.pal[1]; ctx.beginPath(); ctx.arc(bp.x, bp.y, bp.r, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = this.pal[2]; ctx.stroke(); }
+    for (const bp of this.bumpers) { ctx.fillStyle = bp.f > 0 ? '#fff' : (bp.target ? '#ffd400' : this.pal[1]); ctx.beginPath(); ctx.arc(bp.x, bp.y, bp.r, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = this.pal[2]; ctx.stroke(); }
     ctx.strokeStyle = this.pal[2]; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(12, h * 0.72); ctx.lineTo(w * 0.28, h * 0.72 + (w * 0.28 - 12) * 0.35); ctx.moveTo(w - 30, h * 0.72); ctx.lineTo(w * 0.72, h * 0.72 + (w - 30 - w * 0.72) * 0.35); ctx.stroke();
     ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.strokeStyle = '#ffd400';

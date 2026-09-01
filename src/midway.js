@@ -94,7 +94,7 @@ export class MidwayFactory {
     b.box(0.06, 0.1, 3.4, M.maple, [-0.43, 0.55, 0.2], [0, 0, 0], g);
     b.box(0.06, 0.1, 3.4, M.maple, [0.43, 0.55, 0.2], [0, 0, 0], g);
     // ramp
-    b.box(0.8, 0.02, 0.5, M.maple, [0, 0.62, -1.62], [0.45, 0, 0], g);
+    b.box(0.8, 0.02, 0.55, M.maple, [0, 0.7, -1.6], [0.8, 0, 0], g);
     // target board & housing
     b.box(1.0, 1.3, 0.9, M.cabinetBlue, [0, 0.65, -2.35], [0, 0, 0], g);
     b.box(0.88, 1.05, 0.06, M.blackPlastic, [0, 1.1, -2.2], [-0.62, 0, 0], g);
