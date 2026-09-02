@@ -42,8 +42,13 @@ inject the page into their own document skeleton.
 | `F3` | FPS / draw-call counter |
 | `Esc` | Release the mouse (pause) |
 
-A desktop browser with a mouse is recommended. Pick **High** quality on a discrete GPU (bloom, soft shadows,
-SMAA and a real-time reflective lobby floor), **Medium** on a laptop, **Low** on integrated graphics.
+Pick **High** quality on a discrete GPU (bloom, soft shadows, SMAA and a real-time reflective lobby floor),
+**Medium** on a laptop, **Low** on integrated graphics. Phones and tablets get the **Mobile** preset automatically.
+
+**On a phone or tablet** (landscape recommended): the left half of the screen is a virtual joystick, the right
+half looks around, and a **PLAY** button appears when you're facing a machine. Each game shows its own on-screen
+pad (arrows, FIRE/GAS/PUNCH buttons, rhythm lanes, a claw d-pad). Skee-Ball and Hoop Fever are hold-and-release:
+press and hold the right side to charge, drag to aim, let go to throw. The ☰ button pauses; **LEAVE** walks away.
 
 ## What's inside
 
@@ -59,6 +64,8 @@ SMAA and a real-time reflective lobby floor), **Medium** on a laptop, **Low** on
   plus TVs showing a live "broadcast".
 - The **Winner's Circle** redemption counter with shelves of prizes and a ticket eater.
 - Hanging directional signs, exit signs, restrooms, posters and hours by the door.
+- Atmosphere: volumetric light cones under the track lights, drifting dust motes, contact shadows under every
+  machine, CRT scanlines on the monitors, a couple of flickering neon tubes, and traffic passing on the street.
 
 **Machines (about 90)**
 
@@ -106,6 +113,8 @@ src/minigames.js      the seven canvas games
 src/stations.js       game sessions, economy hooks, prize/kiosk menus
 src/audio.js          Web Audio ambience, music loop and SFX
 src/hud.js            DOM overlay
+src/touch.js          virtual joystick, look zone and per-game touch pads
+src/atmosphere.js     light cones, dust, neon flicker, street traffic
 src/state.js          Power Card persistence
 scripts/build.mjs     esbuild single-file bundler
 ```
