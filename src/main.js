@@ -16,19 +16,29 @@ import { GameManager } from './stations.js';
 import { HUD } from './hud.js';
 import { ArcadeAudio } from './audio.js';
 import * as S from './state.js';
+import { TouchControls, isTouchDevice } from './touch.js';
+import { buildAtmosphere } from './atmosphere.js';
 
 (async () => {
 
 const params = new URLSearchParams(location.search);
 const debug = params.has('debug');
-const QUALITY = { low: { bloom: false, shadows: false, reflect: false, tier: 1, pr: 1, smaa: false }, medium: { bloom: true, shadows: true, reflect: false, tier: 2, pr: 1.25, smaa: false }, high: { bloom: true, shadows: true, reflect: true, tier: 3, pr: 1.5, smaa: true } };
+const QUALITY = {
+  low: { bloom: false, shadows: false, reflect: false, tier: 1, pr: 1, smaa: false },
+  medium: { bloom: true, shadows: true, reflect: false, tier: 2, pr: 1.25, smaa: false },
+  high: { bloom: true, shadows: true, reflect: true, tier: 3, pr: 1.5, smaa: true },
+  mobile: { bloom: true, shadows: false, reflect: false, tier: 1, pr: 1, smaa: false, bloomStrength: 0.42 },
+};
+const touch = isTouchDevice();
 
 const hud = new HUD();
 const audio = new ArcadeAudio();
 const storage = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } } };
-const wanted = params.get('quality') || storage.get('db-arcade-quality') || 'medium';
+const wanted = params.get('quality') || storage.get('db-arcade-quality') || (touch ? 'mobile' : 'medium');
 let quality = QUALITY[wanted] ? wanted : 'medium';
 hud.el.quality.value = quality;
+document.body.classList.toggle('touch', touch);
+if (touch) hud.el.start.textContent = 'TAP TO ENTER';
 
 // ---------- renderer ----------
 const renderer = new THREE.WebGLRenderer({ antialias: !debug, powerPreference: 'high-performance' });
@@ -63,6 +73,8 @@ hud.setStatus('Merging geometry…');
 await new Promise(r => setTimeout(r, 30));
 const staticMeshes = batcher.finalize();
 if (layout.mid.extraLights) venue.lights.push(...layout.mid.extraLights);
+const atmosphere = buildAtmosphere(scene, venue.lights, quality);
+void atmosphere;
 
 // reflective lobby floor (high quality)
 let reflector = null;
@@ -97,6 +109,8 @@ function applyQuality(q) {
     }
   }
   bloomPass.enabled = Q.bloom;
+  bloomPass.strength = Q.bloomStrength ?? 0.55;
+  screens.perFrame = q === 'mobile' || q === 'low' ? 2 : 4;
   smaaPass.enabled = Q.smaa;
   setupReflector(Q.reflect);
   scene.traverse(o => { if (o.material) o.material.needsUpdate = true; });
@@ -139,6 +153,12 @@ S.onChange((st, what) => hud.card(st, what));
 S.load();
 
 controller.moveListeners.push((dx, dy) => { if (games.busy()) games.mouseMove(dx, dy); });
+const touchControls = touch ? new TouchControls({
+  controller, games, hud,
+  onInteract: () => { if (controller.target && !games.busy()) games.interact(controller.target); },
+  onQuit: () => games.quit(),
+  onPause: () => { hud.showOverlay({ title: 'PAUSED', button: 'TAP TO RESUME', status: 'Your Power Card is saved automatically.' }); },
+}) : null;
 controller.lockListeners.push((locked) => {
   if (!locked && !games.busy() && playing) {
     hud.showOverlay({ title: 'PAUSED', button: 'CLICK TO RESUME', status: 'Your Power Card is saved automatically.' });
@@ -151,10 +171,14 @@ function start() {
   audio.setEnabled(hud.el.audio.checked);
   hud.hideOverlay();
   playing = true;
-  controller.lock();
+  if (touch) {
+    touchControls.enable();
+    try { document.documentElement.requestFullscreen?.()?.catch?.(() => {}); } catch (e) { /* not allowed */ }
+    try { screen.orientation?.lock?.('landscape')?.catch?.(() => {}); } catch (e) { /* unsupported */ }
+  } else controller.lock();
   if (!started) {
     started = true;
-    hud.hint('Walk through the doors. Your Power Card has chips — play games to win tickets!', 7000);
+    hud.hint(touch ? 'Left thumb walks, right thumb looks. Walk through the doors and tap PLAY at any machine.' : 'Walk through the doors. Your Power Card has chips — play games to win tickets!', 7000);
   }
 }
 let started = false;
@@ -180,6 +204,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => { if (playing && games.busy()) games.key(e.code, false); });
 renderer.domElement.addEventListener('mousedown', (e) => {
   if (!playing) return;
+  if (touch) return;
   if (!controller.locked && !games.busy()) { controller.lock(); return; }
   if (e.button === 0) { if (games.busy()) games.mouseDown(); else if (controller.target) games.interact(controller.target); }
 });
@@ -202,6 +227,7 @@ function frame() {
     controller.update(dt);
     rig.update(dt);
     games.update(dt, t);
+    touchControls?.update();
     for (let i = 0; i < updatables.length; i++) updatables[i].update(dt, t);
     if (!games.busy()) {
       const target = controller.pick();

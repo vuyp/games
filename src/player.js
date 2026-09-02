@@ -46,6 +46,13 @@ export class PlayerController {
     this._fwd = new THREE.Vector3();
     this._right = new THREE.Vector3();
     this.speedMul = 1;
+    this.touchMove = null;
+  }
+  // Look input from touch drags (no pointer lock on mobile).
+  touchLook(dx, dy) {
+    if (!this.enabled) return;
+    this.yaw -= dx * this.sens; this.pitch -= dy * this.sens;
+    this.pitch = Math.max(-1.45, Math.min(1.45, this.pitch));
   }
   lock() { if (document.pointerLockElement !== this.dom) this.dom.requestPointerLock?.({ unadjustedMovement: true })?.catch?.(() => this.dom.requestPointerLock()); }
   unlock() { if (document.pointerLockElement) document.exitPointerLock(); }
@@ -62,14 +69,16 @@ export class PlayerController {
       if (this.down('KeyS') || this.down('ArrowDown')) mz -= 1;
       if (this.down('KeyD') || this.down('ArrowRight')) mx += 1;
       if (this.down('KeyA') || this.down('ArrowLeft')) mx -= 1;
+      if (this.touchMove) { mx += this.touchMove.x; mz += this.touchMove.y; }
     }
-    const running = this.down('ShiftLeft') || this.down('ShiftRight');
+    const running = this.down('ShiftLeft') || this.down('ShiftRight') || (this.touchMove && Math.hypot(this.touchMove.x, this.touchMove.y) > 0.92);
     const maxSpeed = (running ? 5.6 : 3.1) * this.speedMul;
     this._fwd.set(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
     this._right.set(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
     const want = this._tmp.set(0, 0, 0);
     if (mx || mz) {
-      want.addScaledVector(this._fwd, mz).addScaledVector(this._right, mx).normalize().multiplyScalar(maxSpeed);
+      const mag = Math.min(1, Math.hypot(mx, mz));
+      want.addScaledVector(this._fwd, mz).addScaledVector(this._right, mx).normalize().multiplyScalar(maxSpeed * mag);
     }
     const accel = (mx || mz) ? 14 : 18;
     this.vel.x += (want.x - this.vel.x) * Math.min(1, accel * dt);

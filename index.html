@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#05040a" />
   <title>D&amp;B Arcade Simulator</title>
   <meta name="description" content="A first-person Dave & Buster's style arcade simulator built with Three.js. Unofficial fan project." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,11 +49,13 @@
             <option value="high">High (bloom, shadows, reflections)</option>
             <option value="medium" selected>Medium</option>
             <option value="low">Low</option>
+            <option value="mobile">Mobile</option>
           </select>
         </label>
         <label><input type="checkbox" id="chk-audio" checked /> Sound</label>
         <button id="btn-reset" class="small" title="Clear saved Power Card">Reset card</button>
       </div>
+      <p id="rotate-note">Best in landscape · left thumb walks, right thumb looks · tap PLAY on any machine</p>
       <p class="fineprint">Unofficial fan-made simulation. Not affiliated with or endorsed by Dave &amp; Buster's. Desktop with a mouse recommended.</p>
     </div>
   </div>

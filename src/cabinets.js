@@ -70,6 +70,21 @@ export class CabinetFactory {
     this.playfieldMats = {};
     this.glowTex = radialGlowTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0)', 128);
     this.cabinets = [];
+    this.shadowMat = new THREE.MeshBasicMaterial({ map: this.glowTex, color: 0x000000, transparent: true, opacity: 0.7, depthWrite: false });
+    this.shadowMat.userData.noShadow = true; this.shadowMat.userData.noReceive = true;
+    // subtle CRT scanlines multiplied over the screens
+    const { canvas, ctx } = makeCanvas(2, 4);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 2, 4); ctx.fillStyle = '#c8c8c8'; ctx.fillRect(0, 3, 2, 1);
+    const scan = toTexture(canvas, { repeat: [1, 140], srgb: false, filter: false });
+    scan.magFilter = THREE.LinearFilter; scan.minFilter = THREE.LinearMipmapLinearFilter;
+    this.scanMat = new THREE.MeshBasicMaterial({ map: scan, transparent: true, blending: THREE.MultiplyBlending, depthWrite: false });
+    this.scanMat.userData.noShadow = true; this.scanMat.userData.noReceive = true;
+  }
+  contactShadow(g, w, d, cz = 0) {
+    this.b.plane(w * 1.7, d * 1.5, this.shadowMat, [0, 0.007, cz], [-Math.PI / 2, 0, 0], g);
+  }
+  scanlines(g, w, h, pos, rot) {
+    this.b.plane(w, h, this.scanMat, pos, rot, g);
   }
   _marquee(game, id) {
     if (!this.marqueeMats[id]) {
@@ -182,6 +197,7 @@ export class CabinetFactory {
     rec.screenMesh = this.screenPlane(g, 0.52, 0.39, fs.at(0, 0.5, 0.008), [fs.rotPlane, 0, 0], entry);
     rec.screenEntry = entry;
     rec.screenSize = [320, 240];
+    this.scanlines(g, 0.52, 0.39, fs.at(0, 0.5, 0.011), [fs.rotPlane, 0, 0]);
     b.plane(0.60, fs.len - 0.02, M.screenGlass, fs.at(0, 0.5, 0.014), [fs.rotPlane, 0, 0], g);
     // control panel
     const fc = segFrame(P[5], P[6], D);
@@ -216,6 +232,7 @@ export class CabinetFactory {
     b.box(W, 0.12, 0.01, M.steel, [0, 0.06, 0.62 - D / 2 + 0.005], [0, 0, 0], g);
     // floor glow in front, matching the screen hue
     this.floorGlow(g, 0, 0.75, 1.9, game.hue);
+    this.contactShadow(g, W, D);
     addCollider(g.position.x, g.position.z, W + 0.04, D, g.rotation.y);
     rec.volume = interactionVolume(0, H / 2, 0, W, H, D, 0, {});
     g.add(rec.volume);
@@ -236,6 +253,7 @@ export class CabinetFactory {
     rec.screenMesh = this.screenPlane(g, 0.94, 0.53, [0, 1.18, -0.434], [-0.1, 0, 0], entry);
     rec.screenEntry = entry;
     rec.screenSize = [480, 270];
+    this.scanlines(g, 0.94, 0.53, [0, 1.18, -0.431], [-0.1, 0, 0]);
     b.plane(0.98, 0.62, M.screenGlass, [0, 1.18, -0.428], [-0.1, 0, 0], g);
     // led strips framing the housing
     const strip = glowMat(game.accent, 2.5);
@@ -277,6 +295,7 @@ export class CabinetFactory {
     b.box(0.1, 0.1, 0.5, seatMat, [-0.27, 0.66, 0.48], [0, 0, 0], g);
     b.box(0.1, 0.1, 0.5, seatMat, [0.27, 0.66, 0.48], [0, 0, 0], g);
     this.floorGlow(g, 0, 0.1, 1.6, game.hue);
+    this.contactShadow(g, W, D);
     addCollider(g.position.x, g.position.z, W + 0.05, D, g.rotation.y);
     rec.volume = interactionVolume(0, 1.05, 0, W, 2.1, D, 0, {});
     g.add(rec.volume);
@@ -298,6 +317,7 @@ export class CabinetFactory {
     rec.screenMesh = this.screenPlane(g, 1.24, 0.7, [0, 1.42, 0.408], [0, 0, 0], entry);
     rec.screenEntry = entry;
     rec.screenSize = [480, 270];
+    this.scanlines(g, 1.24, 0.7, [0, 1.42, 0.411], [0, 0, 0]);
     b.plane(1.3, 0.78, M.screenGlass, [0, 1.42, 0.414], [0, 0, 0], g);
     // speakers
     b.box(0.3, 0.2, 0.02, M.blackMatte, [-0.5, 1.95, 0.405], [0, 0, 0], g);
@@ -319,6 +339,7 @@ export class CabinetFactory {
     }
     this.cardReader(g, [0, 0.98, 0.5], [-0.2, 0, 0]);
     this.floorGlow(g, 0, 1.2, 2.6, game.hue);
+    this.contactShadow(g, 1.6, 1.6, -0.05);
     addCollider(g.position.x, g.position.z, 1.6, 1.6, g.rotation.y);
     rec.volume = interactionVolume(0, 1.2, -0.05, 1.6, 2.5, 1.5, 0, {});
     g.add(rec.volume);
@@ -336,6 +357,7 @@ export class CabinetFactory {
     rec.screenMesh = this.screenPlane(g, 0.8, 0.6, [0, 1.5, 0.31], [-0.12, 0, 0], entry);
     rec.screenEntry = entry;
     rec.screenSize = [320, 240];
+    this.scanlines(g, 0.8, 0.6, [0, 1.5, 0.314], [-0.12, 0, 0]);
     b.plane(0.88, 0.68, M.screenGlass, [0, 1.5, 0.318], [-0.12, 0, 0], g);
     // speaker towers with LED strips
     for (const x of [-0.64, 0.64]) {
@@ -355,6 +377,7 @@ export class CabinetFactory {
     });
     this.cardReader(g, [0.4, 1.0, 0.66], [-0.3, 0, 0]);
     this.floorGlow(g, 0, 1.1, 2.0, game.hue);
+    this.contactShadow(g, 1.6, 1.3, 0.1);
     addCollider(g.position.x, g.position.z, 1.6, 1.3, g.rotation.y);
     rec.volume = interactionVolume(0, 1.15, 0.1, 1.6, 2.3, 1.4, 0, {});
     g.add(rec.volume);
@@ -372,6 +395,7 @@ export class CabinetFactory {
     rec.screenMesh = this.screenPlane(g, 1.0, 0.75, [0, 1.55, -0.392], [0, 0, 0], entry);
     rec.screenEntry = entry;
     rec.screenSize = [320, 240];
+    this.scanlines(g, 1.0, 0.75, [0, 1.55, -0.389], [0, 0, 0]);
     b.plane(1.12, 0.82, M.screenGlass, [0, 1.55, -0.386], [0, 0, 0], g);
     for (const x of [-0.5, 0.5]) {
       b.cyl(0.14, 0.14, 0.03, M.blackMatte, [x, 0.75, -0.39], [Math.PI / 2, 0, 0], g, 20);
@@ -396,6 +420,7 @@ export class CabinetFactory {
     b.cyl(0.02, 0.02, 1.24, M.chrome, [0, 0.98, 0.9], [0, 0, Math.PI / 2], g, 10);
     this.cardReader(g, [0.62, 0.98, 0.9], [-0.4, 0, 0]);
     this.floorGlow(g, 0, 0.35, 2.4, game.hue);
+    this.contactShadow(g, 1.45, 2.3, -0.2);
     addCollider(g.position.x, g.position.z, 1.45, 2.3, g.rotation.y);
     rec.volume = interactionVolume(0, 1.2, -0.2, 1.5, 2.5, 1.9, 0, {});
     g.add(rec.volume);
@@ -439,6 +464,7 @@ export class CabinetFactory {
     b.box(0.22, 0.24, 0.012, M.steelDark, [0, 0.55, 0.6 + 0.5 * tilt * 0], [0, 0, 0], g);
     this.cardReader(g, [0.2, 0.62, 0.62], [0, 0, 0]);
     this.floorGlow(g, 0, 0.3, 1.5, game.hue, 0.2);
+    this.contactShadow(g, 0.62, 1.45);
     addCollider(g.position.x, g.position.z, 0.62, 1.45, g.rotation.y);
     rec.volume = interactionVolume(0, 1.0, -0.1, 0.62, 2.0, 1.5, 0, {});
     g.add(rec.volume);

@@ -128,3 +128,48 @@ button.small:hover { background: rgba(255,255,255,0.22); }
   #card { width: 190px; font-size: 0.75rem; }
   #gamehud { min-width: 0; width: 92vw; }
 }
+
+/* ---------- Touch controls ---------- */
+#touch { position: fixed; inset: 0; z-index: 12; pointer-events: none; }
+#touch[hidden] { display: none; }
+#joy, #look { position: absolute; bottom: 0; top: 0; pointer-events: auto; touch-action: none; }
+#joy { left: 0; width: 42%; }
+#look { right: 0; width: 58%; }
+#joy-base { position: absolute; left: 22%; top: 68%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); opacity: 0.55; }
+#joy-base.live { opacity: 0.9; }
+#joy-knob { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: rgba(255,255,255,0.55); box-shadow: 0 4px 14px rgba(0,0,0,0.5); }
+.tb { pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; position: absolute; border: 1px solid rgba(255,255,255,0.35); background: rgba(10,8,20,0.6); color: #fff; font: 700 0.85rem var(--font-ui); letter-spacing: 0.08em; border-radius: 999px; backdrop-filter: blur(4px); }
+.tb:active, .tb.on { background: rgba(255,176,46,0.85); color: #1a0a00; }
+#tb-pause { top: calc(14px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: 44px; height: 36px; font-size: 1.1rem; }
+#tb-interact { right: calc(24px + env(safe-area-inset-right)); bottom: calc(30% + env(safe-area-inset-bottom)); padding: 18px 26px; font-size: 1rem; background: linear-gradient(180deg, #ffd166, var(--orange)); color: #1a0a00; border: 0; box-shadow: 0 0 20px rgba(255,176,46,0.6); }
+#tb-interact[hidden], #tb-quit[hidden] { display: none; }
+#tb-quit { right: calc(16px + env(safe-area-inset-right)); top: calc(14px + env(safe-area-inset-top)); padding: 9px 14px; }
+#pad { position: absolute; inset: 0; pointer-events: none; }
+#pad[hidden] { display: none; }
+.pgroup { position: absolute; bottom: calc(26px + env(safe-area-inset-bottom)); display: flex; gap: 12px; align-items: flex-end; }
+.pgroup.left { left: calc(20px + env(safe-area-inset-left)); }
+.pgroup.right { right: calc(20px + env(safe-area-inset-right)); flex-direction: row-reverse; }
+.pb { position: relative; width: 66px; height: 66px; font-size: 0.72rem; }
+.pb.a { width: 84px; height: 84px; background: rgba(216,32,42,0.75); }
+.pb.b { width: 70px; height: 70px; background: rgba(25,70,216,0.75); }
+.dpad { position: relative; width: 170px; height: 170px; }
+.dpad .pb { position: absolute; width: 56px; height: 56px; }
+.dpad .up { left: 57px; top: 0; } .dpad .dn { left: 57px; bottom: 0; } .dpad .l { left: 0; top: 57px; } .dpad .r { right: 0; top: 57px; }
+.lanes { display: flex; gap: 8px; }
+.lanes .pb { width: 60px; height: 76px; font-size: 1.2rem; }
+.hint-hold { color: var(--dim); font-size: 0.75rem; max-width: 160px; text-align: right; padding-bottom: 10px; }
+body.touch #crosshair span { width: 8px; height: 8px; }
+body.touch #prompt { bottom: auto; top: calc(64px + env(safe-area-inset-top)); font-size: 0.85rem; }
+body.touch #prompt kbd { display: none; }
+body.touch #gamehud { top: calc(58px + env(safe-area-inset-top)); min-width: 0; padding: 6px 12px; font-size: 0.85rem; }
+body.touch #gamehud .gh-stats span:not(.label) { font-size: 1.15rem; }
+body.touch #gh-help { display: none; }
+body.touch #card { left: calc(14px + env(safe-area-inset-left)); top: calc(12px + env(safe-area-inset-top)); bottom: auto; width: 160px; padding: 8px 10px; font-size: 0.7rem; }
+body.touch .card-row .value { font-size: 1rem; }
+body.touch #toasts { top: calc(12px + env(safe-area-inset-top)); right: calc(70px + env(safe-area-inset-right)); font-size: 0.8rem; }
+body.touch .toast { padding: 0.4em 0.7em; font-size: 0.8rem; max-width: 240px; }
+body.touch #hint { top: 22%; font-size: 0.8rem; }
+body.touch .controls { display: none; }
+#rotate-note { display: none; margin: 0.6rem 0 0; color: var(--amber); font-size: 0.85rem; }
+body.touch #rotate-note { display: block; }
+@media (max-height: 460px) { #overlay .panel { padding: 1rem; } .logo-d, .logo-b { font-size: 3rem; } .logo-amp { font-size: 2rem; } .logo-sub { margin-top: 0.3rem; font-size: 0.8rem; } .tagline { margin: 0.5rem 0 0.8rem; } .status { margin: 0.5rem 0; } .fineprint { margin-top: 0.6rem; } }

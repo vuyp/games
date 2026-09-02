@@ -28,6 +28,10 @@ export class MidwayFactory {
     this.scene.add(g); g.updateMatrixWorld(true);
     return g;
   }
+  contactShadow(g, w, d, cx = 0, cz = 0) {
+    if (!this.shadowMat) { this.shadowMat = new THREE.MeshBasicMaterial({ map: this.glowTex, color: 0x000000, transparent: true, opacity: 0.7, depthWrite: false }); this.shadowMat.userData.noShadow = true; this.shadowMat.userData.noReceive = true; }
+    this.b.plane(w * 1.6, d * 1.6, this.shadowMat, [cx, 0.007, cz], [-Math.PI / 2, 0, 0], g);
+  }
   glow(g, x, z, size, hue, opacity = 0.28) {
     if (!this.glowMats[hue]) {
       this.glowMats[hue] = new THREE.MeshBasicMaterial({ map: this.glowTex, color: hue, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
@@ -71,6 +75,7 @@ export class MidwayFactory {
     b.sphere(size * 0.09, M.blackMatte, [pos[0] + size * 0.25, pos[1] + size * 1.2, pos[2] + size * 0.7], p, 6);
   }
   finish(rec, g, w, d, cz, interact, volH = 2.6) {
+    this.contactShadow(g, w, d, 0, cz);
     addCollider(g.position.x + Math.cos(g.rotation.y) * 0 , g.position.z, w, d, g.rotation.y);
     rec.group = g;
     rec.volume = interactionVolume(0, volH / 2, cz, w, volH, d, 0, interact);
@@ -280,7 +285,7 @@ export class MidwayFactory {
     const wheelMat = [M.blackPlastic, new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.5, emissive: 0xffffff, emissiveMap: faceTex, emissiveIntensity: 0.3 }), M.blackPlastic];
     const pivot = new THREE.Group(); pivot.position.set(0, 2.2, -0.2); g.add(pivot);
     const wheel = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.08, 48), wheelMat);
-    wheel.rotation.x = Math.PI / 2; wheel.rotation.y = Math.PI;
+    wheel.rotation.x = Math.PI / 2; wheel.rotation.y = 0;
     pivot.add(wheel);
     // pegs
     for (let i = 0; i < WHEEL_SEGMENTS.length; i++) {
@@ -337,6 +342,7 @@ export class MidwayFactory {
       m1.position.z += (st.pz - m1.position.z) * dt * 3; m2.position.z += (st.pz - m2.position.z) * dt * 2.5;
     } });
     this.glow(g, 0, 0, 2.6, 0x8ab8ff, 0.14);
+    this.contactShadow(g, 2.3, 1.25);
     addCollider(g.position.x, g.position.z, 2.4, 1.35, g.rotation.y);
     rec.group = g; this.stations.push(rec);
     return rec;
@@ -374,6 +380,7 @@ export class MidwayFactory {
     b.box(1.1, 0.1, 0.25, M.blackPlastic, [0, 1.05, 0.55], [-0.4, 0, 0], g);
     this.cardReader(g, [0.35, 0.98, 0.5], [-0.4, 0, 0]);
     this.glow(g, 0, 0.8, 1.4, 0xffd23f, 0.18);
+    this.contactShadow(g, 1.1, 0.9);
     addCollider(g.position.x, g.position.z, 1.2, 1.0, g.rotation.y);
     rec.group = g; this.stations.push(rec);
     return rec;
@@ -386,8 +393,8 @@ export class MidwayFactory {
     // counter
     b.box(14, 1.0, 0.8, M.cabinetPurple, [0, 0.5, 0], [0, 0, 0], g);
     b.box(14.2, 0.06, 0.95, M.wood, [0, 1.03, 0], [0, 0, 0], g);
-    b.plane(13.6, 0.75, M.glass, [0, 0.55, 0.41], [0, 0, 0], g);
-    b.box(14, 0.05, 0.05, glowMat(0xffd23f, 2.2), [0, 0.98, 0.42], [0, 0, 0], g);
+    b.plane(13.6, 0.75, M.tintedGlass, [0, 0.55, 0.41], [0, 0, 0], g);
+    b.box(14, 0.04, 0.04, glowMat(0xffd23f, 1.3), [0, 0.98, 0.42], [0, 0, 0], g);
     for (let i = 0; i < 8; i++) {
       const px = -6 + i * 1.7;
       this.plush(g, [px, 0.35, 0.05], i, 0.12);
@@ -401,7 +408,7 @@ export class MidwayFactory {
     const names = ['GIANT PLUSH', 'SPEAKER', 'HEADPHONES', 'DRONE', 'CONSOLE', 'LEGO SET', 'RC CAR', 'BLENDER', 'TV', 'CAMERA', 'WATCH', 'GUITAR'];
     [1.15, 2.05, 2.95].forEach((sy, tier) => {
       b.box(16, 0.05, 0.6, M.wood, [0, sy, shelfZ], [0, 0, 0], g);
-      b.box(16, 0.03, 0.03, glowMat([0xff3cac, 0x26e5ff, 0xffd23f][tier], 2.2), [0, sy - 0.04, shelfZ + 0.3], [0, 0, 0], g);
+      b.box(16, 0.03, 0.03, glowMat([0xff3cac, 0x26e5ff, 0xffd23f][tier], 1.3), [0, sy - 0.04, shelfZ + 0.3], [0, 0, 0], g);
       for (let i = 0; i < 12; i++) {
         const px = -7.3 + i * 1.33, seed = i + tier * 5;
         const size = 0.35 + ((seed * 37) % 10) / 40;
@@ -570,7 +577,7 @@ export class MidwayFactory {
     n.position.set(0, 2.9, 0.17); g.add(n);
     const n2 = n.clone(); n2.rotation.y = Math.PI; n2.position.z = -0.17; g.add(n2);
     new BulbChaser(lineBulbs([-width / 2, 3.32, 0.16], [width / 2, 3.32, 0.16], Math.round(width / 0.2)), { color: 0xffd28a, mode: 'chase', speed: 8, parent: g, radius: 0.025 });
-    const pl = new THREE.PointLight(new THREE.Color(color), 30, 16, 2); pl.position.set(0, 2.4, 0); pl.userData.tier = 2; g.add(pl);
+    const pl = new THREE.PointLight(new THREE.Color(color).lerp(new THREE.Color(0xfff2e0), 0.75), 30, 16, 2); pl.position.set(0, 2.4, 0); pl.userData.tier = 2; g.add(pl);
     (this.extraLights ||= []).push(pl);
   }
 }

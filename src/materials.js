@@ -64,7 +64,7 @@ export function initMaterials() {
   M.pinkPlastic = std({ color: 0xff4fb0, roughness: 0.3 });
   M.basketball = std({ map: T.basketballTexture(), roughness: 0.8 });
   M.skeeBall = std({ color: 0xb8865a, roughness: 0.4, map: maple.map });
-  M.glass = phys({ color: 0xd8ecff, transparent: true, opacity: 0.22, roughness: 0.04, metalness: 0, envMapIntensity: 1.6, side: THREE.DoubleSide, depthWrite: false });
+  M.glass = phys({ color: 0xd8ecff, transparent: true, opacity: 0.18, roughness: 0.04, metalness: 0, envMapIntensity: 0.9, side: THREE.DoubleSide, depthWrite: false });
   M.glass.userData.noShadow = true;
   M.screenGlass = phys({ color: 0xffffff, transparent: true, opacity: 0.12, roughness: 0.03, metalness: 0, envMapIntensity: 2.0, depthWrite: false });
   M.screenGlass.userData.noShadow = true;

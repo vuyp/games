@@ -22,6 +22,7 @@ export function neonText(text, { color = '#ff2d95', height = 0.5, fontFamily = N
   const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false, side: THREE.DoubleSide, depthWrite: false, color: c.clone().multiplyScalar(intensity).lerp(new THREE.Color(0xffffff).multiplyScalar(intensity), 0.35) });
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(worldW, height), mat);
   plane.renderOrder = 5;
+  plane.userData.neonText = text;
   group.add(plane);
   if (backing) {
     const back = new THREE.Mesh(new THREE.BoxGeometry(worldW * 0.92, height * 0.78, 0.04), new THREE.MeshStandardMaterial({ color: backingColor, roughness: 0.8, metalness: 0.4 }));

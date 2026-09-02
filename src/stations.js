@@ -99,7 +99,7 @@ export class GameManager {
     this.hud.game({ title: game.title, score: 0, help: `${mini.help} &nbsp;·&nbsp; <kbd>Q</kbd> walk away` });
     this.rig.dock(pose.pos, pose.look, () => { started = true; }, 0.9);
     const session = {
-      docked: true,
+      docked: true, touchKind: game.play,
       update: (dt) => {
         if (!started) { mini.update(0); priv.texture.needsUpdate = true; return; }
         mini.update(Math.min(dt, 0.05));
@@ -153,7 +153,7 @@ export class GameManager {
     const updateRack = () => rec.balls.forEach((b, i) => { b.visible = i < ballsLeft - (ballInFlight ? 0 : 1) + (over ? 1 : 0); });
     const localToWorld = (v) => v.applyMatrix4(g.matrixWorld);
     const session = {
-      docked: true,
+      docked: true, touchKind: 'skee',
       update: (dt) => {
         if (!started) return;
         if (charging) { power = Math.min(1, power + dt * 0.85); }
@@ -251,7 +251,7 @@ export class GameManager {
     const startPos = () => new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion).multiplyScalar(0.4).add(this.camera.position).add(new THREE.Vector3(0, -0.1, 0));
     const m4 = new THREE.Matrix4();
     const session = {
-      docked: false,
+      docked: false, touchKind: 'hoops',
       update: (dt) => {
         if (!started) return;
         cooldown -= dt;
@@ -324,7 +324,7 @@ export class GameManager {
       return grp;
     };
     const session = {
-      docked: true,
+      docked: true, touchKind: 'claw',
       update: (dt) => {
         if (!started) return;
         t += dt;
@@ -383,7 +383,7 @@ export class GameManager {
     const n = WHEEL_SEGMENTS.length;
     let started = false, omega = 0, theta = rec.wheel.rotation.z, lastSeg = -1, done = false, finishT = 0, flapT = 0;
     // Segment under the top pointer for the wheel's current rotation (calibrated against the cap UV mapping).
-    const segUnderPointer = () => { const i = Math.floor((theta / (Math.PI * 2)) * n) + 4; return ((i % n) + n) % n; };
+    const segUnderPointer = () => { const i = Math.floor((theta / (Math.PI * 2)) * n) + 12; return ((i % n) + n) % n; };
     this.hud.game({ title: 'MEGA SPIN', score: 0, help: 'Spinning… &nbsp;·&nbsp; <kbd>Q</kbd> walk away' });
     this.rig.dock(pose.pos, pose.look, () => { started = true; omega = 9 + Math.random() * 6; rec.bulbs.setMode('chase', 14); this.audio.click(); }, 0.8);
     const session = {
