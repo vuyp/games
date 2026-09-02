@@ -147,6 +147,7 @@ function captureEnvironment() {
 const controller = new PlayerController(camera, renderer.domElement);
 const rig = new CameraRig(camera, controller);
 const games = new GameManager({ scene, camera, controller, rig, hud, audio, screens });
+games.touch = touch;
 controller.setPose(venue.spawn.pos.x, venue.spawn.pos.y, venue.spawn.pos.z, venue.spawn.yaw, venue.spawn.pitch);
 controller.update(0);
 S.onChange((st, what) => hud.card(st, what));

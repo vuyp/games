@@ -148,7 +148,7 @@ export class GameManager {
     };
     this.hud.game({ title: 'SKEE-BALL', score: 0, extraLabel: 'BALLS', extra: 9, help: 'Hold <kbd>Mouse</kbd> to charge, move mouse to aim, release to roll &nbsp;·&nbsp; <kbd>Q</kbd> walk away' });
     drawScoreboard(rec.scoreEntry, { score: 0, label: 'SKEE-BALL' });
-    this.rig.dock(pose.pos, pose.look, () => { started = true; this.hud.hint('Hold the mouse button to charge your roll, release to throw'); }, 0.9);
+    this.rig.dock(pose.pos, pose.look, () => { started = true; this.hud.hint(this.touch ? 'Press and hold the right side to charge, drag to aim, release to roll' : 'Hold the mouse button to charge your roll, release to throw'); }, 0.9);
     for (const b of rec.balls) b.visible = true;
     const updateRack = () => rec.balls.forEach((b, i) => { b.visible = i < ballsLeft - (ballInFlight ? 0 : 1) + (over ? 1 : 0); });
     const localToWorld = (v) => v.applyMatrix4(g.matrixWorld);
@@ -241,7 +241,7 @@ export class GameManager {
       this.controller.yaw = e.y; this.controller.pitch = e.x;
       this.rig.active = false; this.rig.mode = 'idle';
       this.controller.enabled = true; this.controller.lookOnly = true;
-      this.hud.hint('Look at the hoop, hold the mouse button to charge, release to shoot');
+      this.hud.hint(this.touch ? 'Drag to aim at the hoop, hold to charge, release to shoot' : 'Look at the hoop, hold the mouse button to charge, release to shoot');
     }, 0.9);
     const launchVel = (p) => {
       const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
@@ -308,7 +308,7 @@ export class GameManager {
     const c = rec.claw, bounds = rec.bounds;
     let started = false, phase = 'move', t = 0, timeLeft = 25, x = 0, z = 0, drop = 0, grip = 0, won = null, carried = null, finishT = 0;
     this.hud.game({ title: 'PRIZE CLAW', score: 0, extraLabel: 'TIME', extra: 25, help: '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move the claw &nbsp; <kbd>Space</kbd> drop &nbsp;·&nbsp; <kbd>Q</kbd> walk away' });
-    this.rig.dock(pose.pos, pose.look, () => { started = true; this.audio.motor(true); this.hud.hint('Position the claw over a plush, then press Space'); }, 0.9);
+    this.rig.dock(pose.pos, pose.look, () => { started = true; this.audio.motor(true); this.hud.hint(this.touch ? 'Use the d-pad to position the claw, then tap DROP' : 'Position the claw over a plush, then press Space'); }, 0.9);
     const keys = new Set();
     const setClaw = () => {
       c.gantry.position.z = z; c.carriage.position.x = x;

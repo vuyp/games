@@ -77,7 +77,7 @@ export class CabinetFactory {
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 2, 4); ctx.fillStyle = '#c8c8c8'; ctx.fillRect(0, 3, 2, 1);
     const scan = toTexture(canvas, { repeat: [1, 140], srgb: false, filter: false });
     scan.magFilter = THREE.LinearFilter; scan.minFilter = THREE.LinearMipmapLinearFilter;
-    this.scanMat = new THREE.MeshBasicMaterial({ map: scan, transparent: true, blending: THREE.MultiplyBlending, depthWrite: false });
+    this.scanMat = new THREE.MeshBasicMaterial({ map: scan, transparent: true, blending: THREE.MultiplyBlending, premultipliedAlpha: true, depthWrite: false });
     this.scanMat.userData.noShadow = true; this.scanMat.userData.noReceive = true;
   }
   contactShadow(g, w, d, cz = 0) {

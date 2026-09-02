@@ -166,9 +166,9 @@ body.touch #gamehud .gh-stats span:not(.label) { font-size: 1.15rem; }
 body.touch #gh-help { display: none; }
 body.touch #card { left: calc(14px + env(safe-area-inset-left)); top: calc(12px + env(safe-area-inset-top)); bottom: auto; width: 160px; padding: 8px 10px; font-size: 0.7rem; }
 body.touch .card-row .value { font-size: 1rem; }
-body.touch #toasts { top: calc(12px + env(safe-area-inset-top)); right: calc(70px + env(safe-area-inset-right)); font-size: 0.8rem; }
+body.touch #toasts { top: calc(64px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right)); font-size: 0.8rem; }
 body.touch .toast { padding: 0.4em 0.7em; font-size: 0.8rem; max-width: 240px; }
-body.touch #hint { top: 22%; font-size: 0.8rem; }
+body.touch #hint { top: 34%; font-size: 0.8rem; max-width: 60vw; }
 body.touch .controls { display: none; }
 #rotate-note { display: none; margin: 0.6rem 0 0; color: var(--amber); font-size: 0.85rem; }
 body.touch #rotate-note { display: block; }

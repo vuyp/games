@@ -8,7 +8,7 @@ import { glowMat } from './neon.js';
 const coneVert = `varying vec2 vUv; varying vec3 vN; varying vec3 vV;
 void main() { vUv = uv; vec4 mv = modelViewMatrix * vec4(position, 1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`;
 const coneFrag = `uniform vec3 color; uniform float intensity; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
-void main() { float edge = pow(abs(dot(vN, vV)), 1.6); float a = pow(vUv.y, 2.2) * edge * intensity; gl_FragColor = vec4(color * a, a); }`;
+void main() { float edge = pow(abs(dot(vN, vV)), 1.6); float a = pow(vUv.y, 1.8) * (1.0 - 0.45 * vUv.y) * edge * intensity; gl_FragColor = vec4(color * a, a); }`;
 
 export function buildAtmosphere(scene, lights, quality) {
   const group = new THREE.Group();
@@ -20,7 +20,7 @@ export function buildAtmosphere(scene, lights, quality) {
     const h = l.position.y - 0.05;
     const r = Math.tan(l.angle * 0.55) * h;
     const geo = new THREE.ConeGeometry(r, h, 24, 1, true);
-    const mat = new THREE.ShaderMaterial({ uniforms: { color: { value: new THREE.Color(l.color).multiplyScalar(0.9) }, intensity: { value: 0.16 } }, vertexShader: coneVert, fragmentShader: coneFrag, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+    const mat = new THREE.ShaderMaterial({ uniforms: { color: { value: new THREE.Color(l.color).multiplyScalar(0.9) }, intensity: { value: 0.07 } }, vertexShader: coneVert, fragmentShader: coneFrag, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.FrontSide });
     const cone = new THREE.Mesh(geo, mat);
     cone.position.set(l.position.x, l.position.y - h / 2, l.position.z);
     cone.renderOrder = 3;
