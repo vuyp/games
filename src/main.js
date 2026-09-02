@@ -25,7 +25,9 @@ const QUALITY = { low: { bloom: false, shadows: false, reflect: false, tier: 1, 
 
 const hud = new HUD();
 const audio = new ArcadeAudio();
-let quality = QUALITY[params.get('quality') || localStorage.getItem('db-arcade-quality') || 'medium'] ? (params.get('quality') || localStorage.getItem('db-arcade-quality') || 'medium') : 'medium';
+const storage = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } } };
+const wanted = params.get('quality') || storage.get('db-arcade-quality') || 'medium';
+let quality = QUALITY[wanted] ? wanted : 'medium';
 hud.el.quality.value = quality;
 
 // ---------- renderer ----------
@@ -83,7 +85,7 @@ let tileOverlay = null;
 
 // ---------- lights per quality ----------
 function applyQuality(q) {
-  quality = q; localStorage.setItem('db-arcade-quality', q);
+  quality = q; storage.set('db-arcade-quality', q);
   const Q = QUALITY[q];
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Q.pr));
   renderer.shadowMap.enabled = Q.shadows;
